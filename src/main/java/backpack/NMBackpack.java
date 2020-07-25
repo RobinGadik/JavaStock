@@ -20,7 +20,7 @@ public class NMBackpack {
 
     public static void main(String[] args) throws IllegalTaskConditionException{
         // Здесь будет запуск от строки, почему бы и нет.
-        String c = "383 8 9 3 -17 3 3 4 2 1 -5 -2 -3 -380 0 0";
+        String c = "383 8 9 3 -17 3 3 4 2 1 -5 -2 -3 -380 0 -3 -3 -3 0";
         int m = 3;
         List<Integer> a = Arrays.stream(c.split(" "))
                 .map(Integer::parseInt)
@@ -35,13 +35,6 @@ public class NMBackpack {
         }
         if (totalSum % numberOfGroups != 0) {
             throw new IllegalTaskConditionException("Total sum is " + totalSum + " , not div by " + numberOfGroups);
-        }
-        //Haha, why not
-        if (totalSum == 0) {
-            List<List<Integer>> groups = new ArrayList<>();
-            groups.add(nor);
-            for (int i = 1 ; i < numberOfGroups ; i++) groups.add(new ArrayList<>());
-            return groups;
         }
         int groupSum = totalSum / numberOfGroups;
         int[] nors = new int[nor.size()];
@@ -88,13 +81,11 @@ public class NMBackpack {
         } else if (actualGroup > 0) {
             for (int i = 0 ; i < nor.length ; i++) {
                 if (groups[i] <= 0) {
-//               if (actualGroup > -groups[i]) {
                     groups[i] = actualGroup;
                     int nextSum   = actualSum + nor[i] == groupSum ? 0 : actualSum + nor[i];
                     int nextGroup = actualSum + nor[i] == groupSum ? actualGroup + 1 : actualGroup;
                     boolean answer = recursiveNMBackpack(nor, groups, nextGroup,numberOfGroup, groupSum, nextSum);
                     if (!answer) {
-//                        groups[i] = -actualGroup;
                         groups[i] = 0;
                     } else {
                         return answer;
