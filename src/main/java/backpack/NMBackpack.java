@@ -5,7 +5,6 @@ import exceptions.IllegalTaskConditionException;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /*
 Задача:
@@ -21,12 +20,92 @@ public class NMBackpack {
 
     public static void main(String[] args) throws IllegalTaskConditionException{
         // Здесь будет запуск от строки, почему бы и нет.
-        String c = "1 2 3 -6 7 -8 4";
+        String c = "383 8 9 3 -17 3 3 4 2 1 -5 -2 -3 -380 0 0";
         int m = 3;
         List<Integer> a = Arrays.stream(c.split(" "))
                 .map(Integer::parseInt)
                 .collect(Collectors.toList());
-        System.out.println(new NMBackpack().BackpackSeparatorToMBackpacks(a, m));
+        System.out.println(new NMBackpack().RecursiveBackpackSeparatorToMBackpacks(a, m));
+//        System.out.println(new NMBackpack().BackpackSeparatorToMBackpacks(a, m));
+    }
+    public List<List<Integer>> RecursiveBackpackSeparatorToMBackpacks(final List<Integer> nor, int numberOfGroups) throws IllegalTaskConditionException {
+        int totalSum = nor.stream().reduce(0, Integer::sum);
+        if (nor.size() <= 0) {
+            throw new IllegalTaskConditionException("Empty List!");
+        }
+        if (totalSum % numberOfGroups != 0) {
+            throw new IllegalTaskConditionException("Total sum is " + totalSum + " , not div by " + numberOfGroups);
+        }
+        //Haha, why not
+        if (totalSum == 0) {
+            List<List<Integer>> groups = new ArrayList<>();
+            groups.add(nor);
+            for (int i = 1 ; i < numberOfGroups ; i++) groups.add(new ArrayList<>());
+            return groups;
+        }
+        int groupSum = totalSum / numberOfGroups;
+        int[] nors = new int[nor.size()];
+        int[] groups = new int[nor.size()];
+        for (int i = 0 ; i < nor.size() ; i++) {
+            nors[i] = nor.get(i);
+            groups[i] = 0;
+        }
+
+        List<List<Integer>> result = new LinkedList<>();
+        if (
+                recursiveNMBackpack(nors, groups,
+                1, numberOfGroups,
+                groupSum, 0)
+        ) {
+            for (int i = 0; i < numberOfGroups; i++) result.add(new LinkedList<>());
+            for (int i = 0; i < nors.length; i++) {
+                result.get(groups[i] - 1).add(nors[i]);
+            }
+        } else {
+            throw new IllegalTaskConditionException("Тут даже полный перебор бессилен, невозможно разделить.");
+        }
+
+
+        return result;
+    }
+
+    private boolean recursiveNMBackpack(final int[] nor, final int[] groups,
+                                        final int actualGroup, final int numberOfGroup,
+                                        final int groupSum, final int actualSum) {
+        if (actualGroup > numberOfGroup) {
+            int[] tmpSum = new int[numberOfGroup];
+            for (int i = 0 ; i < numberOfGroup ; i++) {
+                tmpSum[i] = 0;
+            }
+            for (int i = 0 ; i < nor.length ; i++) {
+                if (groups[i] <= 0) return false;
+                tmpSum[groups[i]-1] += nor[i];
+            }
+            for (int i = 0 ; i < numberOfGroup ; i++) {
+                if (tmpSum[i] != groupSum) return false;
+            }
+            return true;
+        } else if (actualGroup > 0) {
+            for (int i = 0 ; i < nor.length ; i++) {
+                if (groups[i] <= 0) {
+//               if (actualGroup > -groups[i]) {
+                    groups[i] = actualGroup;
+                    int nextSum   = actualSum + nor[i] == groupSum ? 0 : actualSum + nor[i];
+                    int nextGroup = actualSum + nor[i] == groupSum ? actualGroup + 1 : actualGroup;
+                    boolean answer = recursiveNMBackpack(nor, groups, nextGroup,numberOfGroup, groupSum, nextSum);
+                    if (!answer) {
+//                        groups[i] = -actualGroup;
+                        groups[i] = 0;
+                    } else {
+                        return answer;
+                    }
+                }
+            }
+            return false;
+        } else {
+            throw new AlgorithmRuntimeException("Natural group numbers only!");
+        }
+
     }
 
     public List<List<Integer>> BackpackSeparatorToMBackpacks(final List<Integer> nor, int numberOfGroups) throws IllegalTaskConditionException {
