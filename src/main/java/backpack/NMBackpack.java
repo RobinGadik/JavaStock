@@ -6,20 +6,24 @@ import exceptions.IllegalTaskConditionException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/*
-Задача:
-    Есть N целых чисел, которые нужно разделить на M групп, так,
-    чтобы в каждой группе сумма чисел была одинакова.
-
-Коммментарий:
-    Классическая NP-полная задача. Не шибко показательная, но какая есть.
-    Слава богу, целые числа.
+/**
+ * Задача:
+ * Есть N целых чисел, которые нужно разделить на M групп, так,
+ * чтобы в каждой группе сумма чисел была одинакова.
+ * Коммментарий:
+ * Классическая NP-полная задача. Не шибко показательная, но какая есть.
+ * Слава богу, целые числа.
+ * Если существует алгоритм её решения полимиального - пишите.
  */
-
 public class NMBackpack {
 
+
+    /**
+     * Запуск алгоритма задачи от строки, быстро и тесты писать не надо.
+     * @param args - не используется
+     * @throws IllegalTaskConditionException - если условие некорретно.
+     */
     public static void main(String[] args) throws IllegalTaskConditionException{
-        // Здесь будет запуск от строки, почему бы и нет.
         String c = "383 8 9 3 -17 3 3 4 2 1 -5 -2 -3 -380 0 -3 -3 -3 0";
         int m = 3;
         List<Integer> a = Arrays.stream(c.split(" "))
@@ -28,6 +32,16 @@ public class NMBackpack {
         System.out.println(new NMBackpack().RecursiveBackpackSeparatorToMBackpacks(a, m));
 //        System.out.println(new NMBackpack().BackpackSeparatorToMBackpacks(a, m));
     }
+
+
+    /**
+     * Рекурсивная реализация алгоритма.
+     * Приводит данные у удобному типу для {@link NMBackpack#recursiveNMBackpack(int[], int[], int, int, int, int)}
+     * @param nor - список чисел
+     * @param numberOfGroups - количество групп
+     * @return - Список групп(списков чисел)
+     * @throws IllegalTaskConditionException - Выбрасывается, если разделить на группы равной суммы невозможно.
+     */
     public List<List<Integer>> RecursiveBackpackSeparatorToMBackpacks(final List<Integer> nor, int numberOfGroups) throws IllegalTaskConditionException {
         int totalSum = nor.stream().reduce(0, Integer::sum);
         if (nor.size() <= 0) {
@@ -45,11 +59,9 @@ public class NMBackpack {
         }
 
         List<List<Integer>> result = new LinkedList<>();
-        if (
-                recursiveNMBackpack(nors, groups,
+        if ( recursiveNMBackpack(nors, groups,
                 1, numberOfGroups,
-                groupSum, 0)
-        ) {
+                groupSum, 0) ) {
             for (int i = 0; i < numberOfGroups; i++) result.add(new LinkedList<>());
             for (int i = 0; i < nors.length; i++) {
                 result.get(groups[i] - 1).add(nors[i]);
@@ -62,6 +74,20 @@ public class NMBackpack {
         return result;
     }
 
+    /**
+     * Рекурсивная реализация алгоритма.
+     * Тупой полный перебор поиском в глубину. Банально и безвкусно.
+     *
+     * TODO: Оптимизировать перебор через номера групп.
+     *
+     * @param nor - массив исходных чисел
+     * @param groups - массив индекса групп для каждого числа
+     * @param actualGroup - номер текущей вычисляемой группы
+     * @param numberOfGroup - Количество групп, на которые делится массив.
+     * @param groupSum - сумма чисел в каждой группе.
+     * @param actualSum - Сумма текущей группы.
+     * @return True, для успешного разделения, False иначе.
+     */
     private boolean recursiveNMBackpack(final int[] nor, final int[] groups,
                                         final int actualGroup, final int numberOfGroup,
                                         final int groupSum, final int actualSum) {
@@ -99,6 +125,16 @@ public class NMBackpack {
 
     }
 
+    /**
+     * Алгоритм (java heap space)
+     * Итеративно строит список всевозможных групп с необходимой суммой.
+     * (@link {@link NMBackpack#retain(List, int, List, int)}} выбирает из них подходящую комбинацию.
+     * После чего востанавливаются по нидексам чисел группы
+     * @param nor Список чисел
+     * @param numberOfGroups количество групп
+     * @return Список групп(списков чисел)
+     * @throws IllegalTaskConditionException -  - Выбрасывается, если разделить на группы равной суммы невозможно.
+     */
     public List<List<Integer>> BackpackSeparatorToMBackpacks(final List<Integer> nor, int numberOfGroups) throws IllegalTaskConditionException {
         int totalSum = nor.stream().reduce(0, Integer::sum);
         if (nor.size() <= 0) {
@@ -118,8 +154,6 @@ public class NMBackpack {
         Collections.sort(a);
 
         int groupSum = totalSum / numberOfGroups;
-
-
 
         class GroupStruct{
             int sum=0;
@@ -185,10 +219,19 @@ public class NMBackpack {
         return groups;
     }
 
-    private List<Set<Integer>> retain (final List<Set<Integer>> groups,
+    /**
+     * Рекунсивно выбирает список непересекающихся групп,
+     * При обхеденении которых получается список чисел от 0 до norSize (Количество исходных чисел)
+     * @param groups Список групп, множеств с индексами используемых чисел.
+     * @param numberOfGroups - количество выбираемых групп.
+     * @param indexUsedGroup - индексы использованных групп
+     * @param norSize - количество исходных чисел
+     * @return - Список групп
+     */
+    private List<Set<Integer>> retain(final List<Set<Integer>> groups,
                                        final int numberOfGroups,
                                        final List<Integer> indexUsedGroup,
-                                       final int norSize) throws IllegalTaskConditionException {
+                                       final int norSize) {
         if (indexUsedGroup == null || indexUsedGroup.size() == 0) {
             for (int i = 0; i < groups.size(); i++) {
                 List<Integer> choosen = new LinkedList<>();
@@ -209,8 +252,8 @@ public class NMBackpack {
         } else if (indexUsedGroup.size() == numberOfGroups) {
             Set<Integer> total = new HashSet<>();
             List<Set<Integer>> result = new LinkedList<>();
-            for (int i = 0; i < indexUsedGroup.size() ; i++ ) {
-                Set<Integer> check = groups.get(indexUsedGroup.get(i));
+            for (Integer integer : indexUsedGroup) {
+                Set<Integer> check = groups.get(integer);
                 if (!total.addAll(check)) {
                     return null;
                 }
