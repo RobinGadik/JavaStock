@@ -148,12 +148,12 @@ public class ListOfNumbersSeparator {
    * @throws IllegalTaskConditionException -  - Выбрасывается, если разделить на группы равной суммы
    * невозможно.
    * @deprecated (вызываеи java heap space при большом количестве чисел) Алгоритм итеративно строит
-   * список всевозможных групп с необходимой суммой. (@link {@link ListOfNumbersSeparator#selectFromListOfGroupCombinationOfNonOverlappingGroupsWithTotalUnion(List,
-   * int, List, int)}} выбирает из них подходящую комбинацию. После чего востанавливаются по
-   * нидексам чисел группы
+   * список всевозможных групп с необходимой суммой. (@link {@link #selectFromListOfGroupCombinationOfNonOverlappingGroupsWithTotalUnion(List,
+   * int, List, int)} выбирает из них подходящую комбинацию. После чего востанавливаются по нидексам
+   * чисел группы
    */
   @Deprecated
-  public static List<List<Integer>> SplitListOfNumbersIntoGroupsOfEqualSumUsingAlgorithmForCombinationOfGroups(
+  public static List<List<Integer>> SplitListOfNumbersIntoGroupsOfEqualSumByGroupCombination(
       final List<Integer> listOfNumbers,
       final int numberOfGroups) throws IllegalTaskConditionException {
 
