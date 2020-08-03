@@ -1,5 +1,7 @@
 package backpack;
 
+import static java.util.stream.Collectors.toList;
+
 import exceptions.AlgorithmRuntimeException;
 import exceptions.IllegalTaskConditionException;
 import java.util.ArrayList;
@@ -10,7 +12,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 /**
  * Задача: Есть N целых чисел, которые нужно разделить на M групп, так, чтобы в каждой группе сумма
@@ -26,12 +27,13 @@ public class ListOfNumbersSeparator {
    * @throws IllegalTaskConditionException - если условие некорретно.
    */
   public static void main(String[] args) throws IllegalTaskConditionException {
-    String c = "383 8 9 3 -17 3 3 4 2 1 -5 -2 -3 -380 0 -3 -3 -3 0";
-    int m = 3;
-    List<Integer> a = Arrays.stream(c.split(" "))
+    String strOfNumbers = "383 8 9 3 -17 3 3 4 2 1 -5 -2 -3 -380 0 -3 -3 -3 0";
+    int numberOfGroups = 3;
+    List<Integer> listOfNumbers = Arrays.stream(strOfNumbers.split(" "))
         .map(Integer::parseInt)
-        .collect(Collectors.toList());
-    System.out.println(SplitListOfNumbersIntoGroupsOfEqualSumUsingRecursiveAlgorithm(a, m));
+        .collect(toList());
+    System.out.println(
+        splitListOfNumbersIntoGroupsOfEqualSumUsingDeepSearch(listOfNumbers, numberOfGroups));
   }
 
 
@@ -44,13 +46,16 @@ public class ListOfNumbersSeparator {
    * @throws IllegalTaskConditionException - Выбрасывается, если разделить на группы равной суммы
    * невозможно.
    */
-  public static List<List<Integer>> SplitListOfNumbersIntoGroupsOfEqualSumUsingRecursiveAlgorithm(
+  public static List<List<Integer>> splitListOfNumbersIntoGroupsOfEqualSumUsingDeepSearch(
       final List<Integer> listOfNumbers,
       final int numberOfGroups) throws IllegalTaskConditionException {
-    final int sumOfAllNumbers = listOfNumbers.stream().reduce(0, Integer::sum);
     if (listOfNumbers.size() <= 0) {
       throw new IllegalTaskConditionException("Empty list of numbers");
     }
+    if (numberOfGroups <= 0) {
+      throw new IllegalTaskConditionException("Illegal number of Groups");
+    }
+    final int sumOfAllNumbers = listOfNumbers.stream().reduce(0, Integer::sum);
     if (sumOfAllNumbers % numberOfGroups != 0) {
       throw new IllegalTaskConditionException(
           "Total sumOfNumbersInGroup is " + sumOfAllNumbers + " , not div by " + numberOfGroups);
@@ -153,14 +158,16 @@ public class ListOfNumbersSeparator {
    * чисел группы
    */
   @Deprecated
-  public static List<List<Integer>> SplitListOfNumbersIntoGroupsOfEqualSumByGroupCombination(
+  public static List<List<Integer>> splitListOfNumbersIntoGroupsOfEqualSumByGroupCombination(
       final List<Integer> listOfNumbers,
       final int numberOfGroups) throws IllegalTaskConditionException {
-
-    final int sumOfAllNumbers = listOfNumbers.stream().reduce(0, Integer::sum);
     if (listOfNumbers.size() <= 0) {
       throw new IllegalTaskConditionException("Empty list of numbers");
     }
+    if (numberOfGroups <= 0) {
+      throw new IllegalTaskConditionException("Illegal number of Groups");
+    }
+    final int sumOfAllNumbers = listOfNumbers.stream().reduce(0, Integer::sum);
     if (sumOfAllNumbers % numberOfGroups != 0) {
       throw new IllegalTaskConditionException(
           "Total sumOfNumbersInGroup is " + sumOfAllNumbers + " , not div by " + numberOfGroups);
@@ -220,7 +227,7 @@ public class ListOfNumbersSeparator {
 
     Optional<List<Set<Integer>>> indx = selectFromListOfGroupCombinationOfNonOverlappingGroupsWithTotalUnion(
         totalgss.stream().map((x) -> x.indexsOfNumbersInGroupFromListOfNumbers)
-            .collect(Collectors.toList()),
+            .collect(toList()),
         numberOfGroups,
         null,
         listOfNumbers.size());
@@ -231,12 +238,12 @@ public class ListOfNumbersSeparator {
     }
 
     List<List<Integer>> listOfGroups = indx.get().stream().map(LinkedList::new)
-        .collect(Collectors.toList());
+        .collect(toList());
     listOfGroups = listOfGroups.stream()
         .map((x) -> x.stream()
             .map(listOfNumbers::get)
-            .collect(Collectors.toList()))
-        .collect(Collectors.toList());
+            .collect(toList()))
+        .collect(toList());
 
     return listOfGroups;
   }
